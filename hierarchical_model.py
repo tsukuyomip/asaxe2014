@@ -2,7 +2,12 @@
 import numpy as np
 
 class BinTree(object):
-    def __init__(self, rand = np.random.random, depth = 2, p = 0.99, parents = [1, -1]):
+    def __init__(self, rand = np.random.random, depth = 4, p = 0.01, parents = [1, -1, -1, 1, 1, 1]):
+        """
+        depth  : ルートノードを含む二分木の深さ
+        p      : 子が反転する確率
+        parents: 親のリスト．作る木の数と同じ長さ．
+        """
         self.rand = rand
         self.depth = depth
         self.p = p
