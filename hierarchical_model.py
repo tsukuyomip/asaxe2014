@@ -43,3 +43,6 @@ class BinTree(object):
         for p in self.parents:
             ret_list.append(self.make_a_tree(p))
         return ret_list
+
+    def make_dataset(self):
+        return np.array(self.make_all_tree()).T

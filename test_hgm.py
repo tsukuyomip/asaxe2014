@@ -1,6 +1,7 @@
 #coding: utf-8
 
 import unittest
+import numpy as np
 from hierarchical_model import BinTree
 from test_double.randdouble import RandDouble
 
@@ -41,6 +42,25 @@ class TestBinTree(unittest.TestCase):
             [[1,-1, -1,1, -1,1, 1,-1],
              [-1,1, 1,-1, 1,-1, -1,1],
              [-1,1, 1,-1, 1,-1, -1,1]]
+        )
+
+    def test_return_formatted_output_dataset(self):
+        r = RandDouble()
+
+        bt = BinTree(rand = r.rand, parents = [1, -1, -1], depth = 4, p = 0.99)
+        self.assertTrue(
+            np.array_equal(
+                bt.make_dataset(),
+                np.array([
+                    [1, -1, -1],
+                    [-1, 1, 1],
+                    [-1, 1, 1],
+                    [1, -1, -1],
+                    [-1, 1, 1],
+                    [1, -1, -1],
+                    [1, -1, -1],
+                    [-1, 1, 1]])
+            )
         )
 
 if __name__ == "__main__":
