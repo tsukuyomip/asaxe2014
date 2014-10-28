@@ -11,10 +11,10 @@ class BinTree(object):
 
     def born_two_children(self, parent):
         l = parent
-        if self.rand() > 0.9:
+        if self.rand() > self.p:
             l = -l
         r = parent
-        if self.rand() > 0.9:
+        if self.rand() > self.p:
             r = -r
         return (l, r)
 
@@ -22,7 +22,7 @@ class BinTree(object):
         ret_list = []
         for item in parent_list:
             for i in xrange(2):
-                if self.rand() > 0.9:
+                if self.rand() > self.p:
                     ret_list.append(item)
                 else:
                     ret_list.append(-item)
