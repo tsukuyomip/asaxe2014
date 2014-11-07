@@ -49,5 +49,5 @@ class BinTree(object):
             ret_list.append(self.make_a_tree(p))
         return ret_list
 
-    def make_dataset(self):
+    def make_dataset(self):  ## いらない可能性が！！！
         return np.array(self.make_all_tree()).T
