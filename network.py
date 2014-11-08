@@ -4,7 +4,7 @@ import numpy as np
 from exception.inputexception import *
 
 class LinearNetwork(object):
-    def __init__(self, l = None, n = None, maxw = 0.01, W = None):
+    def __init__(self, l = None, n = None, maxw = 0.01, W = None, rng = np.random):
         if l != len(n):
             raise InputException
 
@@ -14,7 +14,7 @@ class LinearNetwork(object):
         if W == None:
             self.W = []
             for i in xrange(l - 1):
-                self.W.append( np.random.rand(n[i+1], n[i]) * maxw )
+                self.W.append( rng.rand(n[i+1], n[i]) * maxw )
         else:
             self.W = W
 

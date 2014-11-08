@@ -2,13 +2,13 @@
 import numpy as np
 
 class BinTree(object):
-    def __init__(self, rand = np.random.random, depth = 4, p = 0.01, parents = [1, -1, -1, 1, 1, 1]):
+    def __init__(self, rng = np.random, depth = 4, p = 0.01, parents = [1, -1, -1, 1, 1, 1]):
         """
         depth  : ルートノードを含む二分木の深さ
         p      : 子が反転する確率
         parents: 親のリスト．作る木の数と同じ長さ．
         """
-        self.rand = rand
+        self.rng = rng
         self.depth = depth
         self.p = p
         self.parents = parents
@@ -16,10 +16,10 @@ class BinTree(object):
 
     def born_two_children(self, parent):
         l = parent
-        if self.rand() > self.p:
+        if self.rng.rand() > self.p:
             l = -l
         r = parent
-        if self.rand() > self.p:
+        if self.rng.rand() > self.p:
             r = -r
         return (l, r)
 
@@ -27,7 +27,7 @@ class BinTree(object):
         ret_list = []
         for item in parent_list:
             for i in xrange(2):
-                if self.rand() > self.p:
+                if self.rng.rand() > self.p:
                     ret_list.append(item)
                 else:
                     ret_list.append(-item)

@@ -1,7 +1,7 @@
 #coding: utf-8
 
 DEBUG = True
-#DEBUG = False
+DEBUG = False
 
 import sys
 import numpy as np
@@ -9,11 +9,14 @@ from hierarchical_model import BinTree
 from network import LinearNetwork
 
 def run():
-    n3 = 50  # Tree数
-    depth = 6
-    n2 = 20  # 中間層数
-    n1 = 32  # Depth = 6 なので32個いっぱいいっぱい使う
-    p = 0.01  # 反転率
+    SEED = 29431101
+    n_epochs = 600
+    n3 = 10000  # Tree数
+    depth = 3
+    n2 = 3  # 中間層数
+    n1 = 2**(depth - 1)
+    p = 0.1  # 反転率
+    mu = 0.005
 
     svd = svd_full  # 使用するsvd
 
@@ -21,15 +24,17 @@ def run():
     experiment_filename = "experiment_result.dat"
     err_filename = "err.dat"
 
+    rng = np.random.RandomState(SEED)
+
     # 教師信号の作成
     if DEBUG: print "create inst[]"
-    inst = create_instruction_signals(n_in = n1, n_out = n3, depth = depth, p = p)  # inst[0]: 入力,  inst[1]: 出力
+    inst = create_instruction_signals(n_in = n1, n_out = n3, depth = depth, p = p, rng = rng)  # inst[0]: 入力,  inst[1]: 出力
     if DEBUG: print "inst[0].shape:", inst[0].shape
     if DEBUG: print "inst[1].shape:", inst[1].shape
 
     # ネットワークの作成
     if DEBUG: print "create network"
-    network = LinearNetwork(l = 3, n = (n1, n2, n3))
+    network = LinearNetwork(l = 3, n = (n1, n2, n3), rng = rng)
     if DEBUG: print "W0.shape:", network.W[0].shape
     if DEBUG: print "W1.shape:", network.W[1].shape
 
@@ -57,7 +62,6 @@ def run():
     #if DEBUG: print "err(output, inst[1]):", err
 
     # 更新量を計算 -> 更新
-    mu = 0.005
     W0bar = np.dot(network.W[0], V)  # 本当は(W0, inv(V.T))だが，V.T = inv(V) とした．
     #if DEBUG: print "W0bar (shape:", W0bar.shape, ")\n", W0bar
     W1bar = np.dot(U.T, network.W[1])  # 本当は(inv(U), W1)だが，U.T = inv(U) とした．
@@ -70,7 +74,7 @@ def run():
     # 理論のstrength(t = 0)
     for i in xrange(len(s)):
         theory_strength.append(
-            [calculate_strength(t = 0, s = s[i], a0 = a0)]
+            [calculate_strength(t = 0, s = s[i], a0 = a0, tau = 1.0/mu)]
         )
 
     # 実際のstrength(t = 0)
@@ -86,9 +90,9 @@ def run():
     err.append(calculate_error(netout, inst[1]))
 
 
-    for epoch in xrange(1500):
-        #if epoch%5000 == 0: 
-        #    print i
+    for epoch in xrange(n_epochs):
+        if True or epoch%(n_epochs/20) == 0: 
+            print epoch, "/", n_epochs
         dW0bar = np.dot(W1bar.T, (S - np.dot(W1bar, W0bar)))  # 式(4)-L
         dW1bar = np.dot((S - np.dot(W1bar, W0bar)), W0bar.T)  # 式(4)-R
         #if DEBUG: print "dW0bar (shape:", dW0bar.shape, ")\n", dW0bar
@@ -107,7 +111,7 @@ def run():
         # 理論のstrength (t = epoch + 1)
         for i in xrange(len(s)):
             theory_strength[i].append(
-                calculate_strength(t = epoch+1, s = s[i], a0 = a0)
+                calculate_strength(t = epoch+1, s = s[i], a0 = a0, tau = 1.0/mu)
             )
 
         # 実際のstrength(t = 0)
@@ -146,7 +150,7 @@ def run():
     err = calculate_error(output, inst[1])
     if DEBUG: print "final err(output, inst[1]):", err
 
-def create_instruction_signals(n_in, n_out, depth, p):
+def create_instruction_signals(n_in, n_out, depth, p, rng = np.random):
     # 例題の入力を作成
     t_input = np.identity(n_in)
     if DEBUG: print "create t_input:\n", t_input
@@ -154,13 +158,13 @@ def create_instruction_signals(n_in, n_out, depth, p):
     # 例題の出力を作成
     roots = []
     for i in xrange(n_out):
-        if np.random.random() > 0.5:
+        if rng.rand() > 0.5:
             roots.append(1)
         else:
             roots.append(-1)
 
     if DEBUG: print "create BinTree"
-    bt = BinTree(depth = depth, p = p, parents = roots)
+    bt = BinTree(depth = depth, p = p, parents = roots, rng = rng)
     if DEBUG: print "created BinTree as bt"
 
     #t_ans = bt.make_dataset()  # ちがうかも！！
