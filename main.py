@@ -3,6 +3,7 @@
 DEBUG = True
 #DEBUG = False
 
+import sys
 import numpy as np
 from hierarchical_model import BinTree
 from network import LinearNetwork
@@ -18,6 +19,7 @@ def run():
 
     theory_filename = "theory_result.dat"
     experiment_filename = "experiment_result.dat"
+    err_filename = "err.dat"
 
     # 教師信号の作成
     if DEBUG: print "create inst[]"
@@ -63,6 +65,7 @@ def run():
     a0 = 0.001
     theory_strength = []
     experiment_strength = []
+    err = []
 
     # 理論のstrength(t = 0)
     for i in xrange(len(s)):
@@ -78,6 +81,9 @@ def run():
         experiment_strength.append(
             [netout_s[i]]
         )
+
+    # 現在の誤差
+    err.append(calculate_error(netout, inst[1]))
 
 
     for epoch in xrange(1500):
@@ -113,6 +119,10 @@ def run():
                 netout_s[i]
             )
 
+        # 現在の誤差
+        err.append(calculate_error(netout, inst[1]))
+
+
 
     W0 = np.dot(W0bar, V.T)
     W1 = np.dot(U, W1bar)
@@ -123,6 +133,8 @@ def run():
     for elem in experiment_strength:
         write_list_to_file(experiment_filename, elem)
 
+    write_list_to_file(err_filename, err)
+
 
     # 学習出来てるか，試しに走らせてみる
     if DEBUG: print "test run network after learning"
@@ -132,7 +144,7 @@ def run():
 
     # 誤差の計算
     err = calculate_error(output, inst[1])
-    if DEBUG: print "err(output, inst[1]):", err
+    if DEBUG: print "final err(output, inst[1]):", err
 
 def create_instruction_signals(n_in, n_out, depth, p):
     # 例題の入力を作成
@@ -186,4 +198,6 @@ def write_list_to_file(filename, l):
     fp.close()
 
 if __name__ == "__main__":
+    print >> sys.stderr, "start run()"
     run()
+    print >> sys.stderr, "done run()"
