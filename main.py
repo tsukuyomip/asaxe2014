@@ -1,7 +1,9 @@
 #coding: utf-8
 
 DEBUG = True
-DEBUG = False
+#DEBUG = False
+
+from decimal import *
 
 import sys
 import numpy as np
@@ -10,15 +12,16 @@ from network import LinearNetwork
 
 def run():
     SEED = 29431101
-    n_epochs = 600
+    n_epochs = 1000
     n3 = 10000  # Tree数
     depth = 3
     n2 = 3  # 中間層数
     n1 = 2**(depth - 1)
     p = 0.1  # 反転率
-    mu = 0.005
+    mu = 0.0005
+    a0 = 0.00002
 
-    svd = svd_full  # 使用するsvd
+    svd = svd_reduce  # 使用するsvd
 
     theory_filename = "theory_result.dat"
     experiment_filename = "experiment_result.dat"
@@ -35,6 +38,7 @@ def run():
     # ネットワークの作成
     if DEBUG: print "create network"
     network = LinearNetwork(l = 3, n = (n1, n2, n3), rng = rng)
+    #network = LinearNetwork(l = 3, n = (n1, n2, n3))
     if DEBUG: print "W0.shape:", network.W[0].shape
     if DEBUG: print "W1.shape:", network.W[1].shape
 
@@ -52,21 +56,11 @@ def run():
     if DEBUG: print "VVT", np.dot(V, V.T)
     if DEBUG: print "s31 ?=", np.dot(U, np.dot(S, V))
 
-    ## 試しに走らせてみるよ
-    #if DEBUG: print "test run network"
-    #output = network.run(inst[0])
-    #if DEBUG: print "output(shape:", output.shape, "):\n", output
-    #
-    ## 誤差の計算
-    #err = calculate_error(output, inst[1])
-    #if DEBUG: print "err(output, inst[1]):", err
-
     # 更新量を計算 -> 更新
     W0bar = np.dot(network.W[0], V)  # 本当は(W0, inv(V.T))だが，V.T = inv(V) とした．
     #if DEBUG: print "W0bar (shape:", W0bar.shape, ")\n", W0bar
     W1bar = np.dot(U.T, network.W[1])  # 本当は(inv(U), W1)だが，U.T = inv(U) とした．
     #if DEBUG: print "W1bar (shape:", W0bar.shape, ")\n", W1bar
-    a0 = 0.001
     theory_strength = []
     experiment_strength = []
     err = []
@@ -91,7 +85,7 @@ def run():
 
 
     for epoch in xrange(n_epochs):
-        if True or epoch%(n_epochs/20) == 0: 
+        if epoch%(n_epochs/50) == 0: 
             print epoch, "/", n_epochs
         dW0bar = np.dot(W1bar.T, (S - np.dot(W1bar, W0bar)))  # 式(4)-L
         dW1bar = np.dot((S - np.dot(W1bar, W0bar)), W0bar.T)  # 式(4)-R
@@ -176,7 +170,7 @@ def create_instruction_signals(n_in, n_out, depth, p, rng = np.random):
 def svd_reduce(mat):
     U, s, V = np.linalg.svd(mat, full_matrices=False)
     S = np.diag(s)
-    if DEBUG: print "svd is allclose:", np.allclose(mat, np.dot(U, np.dot(S, V)))
+    #if DEBUG: print "svd is allclose:", np.allclose(mat, np.dot(U, np.dot(S, V)))
     return (U, S, s, V.T)
 
 def svd_full(mat):
@@ -190,7 +184,12 @@ def calculate_error(mat1, mat2):
     return (mat*mat).mean()  # これは平均二乗誤差．論文はこれの例題数倍．
 
 def calculate_strength(t, s, a0, tau = 200):  # tau = 1.0/0.005
-    return s*np.exp(2*s*t/tau)/(np.exp(2*s*t/tau) - 1.0 + s/a0)
+    try:
+        return Decimal(s)*np.exp(Decimal(2*s*t/tau))/(np.exp(Decimal(2*s*t/tau)) - Decimal(1.0) + Decimal(s/a0))
+    except InvalidOperation:
+        print "t: ", t
+        print "s: ", s
+        exit(-1)
 
 def write_list_to_file(filename, l):
     fp = open(filename, "a")
