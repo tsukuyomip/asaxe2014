@@ -10,17 +10,17 @@ import numpy as np
 from hierarchical_model import BinTree
 from network import LinearNetwork
 
-def run():
-    SEED = 29431101
-    n_epochs = 1000
-    n3 = 10000  # Tree数
-    depth = 3
-    n2 = 3  # 中間層数
-    n1 = 2**(depth - 1)
-    p = 0.1  # 反転率
-    mu = 0.0005
-    a0 = 0.00002
-
+def run(
+        SEED = 29431101, 
+        n_epochs = 10000, 
+        n3 = 10000,   # Tree数
+        depth = 3, 
+        n2 = 3,   # 中間層数
+        n1 = 4, 
+        p = 0.1,   # 反転率
+        mu = 0.0001,
+        a0 = 0.00002
+):
     svd = svd_reduce  # 使用するsvd
 
     theory_filename = "theory_result.dat"
@@ -202,5 +202,24 @@ def write_list_to_file(filename, l):
 
 if __name__ == "__main__":
     print >> sys.stderr, "start run()"
-    run()
+    SEED = 29431101
+    n_epochs = 10000
+    n3 = 10000  # Tree数
+    depth = 3
+    n2 = 3  # 中間層数
+    n1 = 4
+    p = 0.1  # 反転率
+    mu = 0.0001
+    a0 = 0.00002
+    run(
+        SEED = SEED,
+        n_epochs = n_epochs, 
+        n3 = n3,   # Tree数
+        depth = depth, 
+        n2 = n2,   # 中間層数
+        n1 = n1, 
+        p = p,   # 反転率
+        mu = mu, 
+        a0 = a0
+    )
     print >> sys.stderr, "done run()"
