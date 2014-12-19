@@ -93,13 +93,20 @@ def run(
 
     # 実際のstrength(t = 0)
     netout = network.run(inst[0])
-    netout_s31 = np.dot(netout, inst[0].T)  # output Sigma31
+    # netout_s31 = np.dot(netout, inst[0].T)  # output Sigma31
 
     # s31 = dot(U, S, V.T)
-    (netout_U, netout_S, netout_s, netout_V) = svd(netout_s31)
-    for i in xrange(len(netout_s)):
+    # (netout_U, netout_S, netout_s, netout_V) = svd(netout_s31)
+    # for i in xrange(len(netout_s)):
+    #     experiment_strength.append(
+    #         [netout_s[i]]
+    #     )
+
+    WW = np.dot(network.W[1], network.W[0])
+    (WW_U, WW_S, WW_s, WW_V) = svd(WW)
+    for i in xrange(len(WW_s)):
         experiment_strength.append(
-            [netout_s[i]]
+            [WW_s[i]]
         )
 
     # 現在の誤差
@@ -131,13 +138,20 @@ def run(
 
         # 実際のstrength(t = 0)
         netout = network.run(inst[0])
-        netout_s31 = np.dot(netout, inst[0].T)  # output Sigma31
+        # netout_s31 = np.dot(netout, inst[0].T)  # output Sigma31
 
         # s31 = dot(U, S, V.T)
-        (netout_U, netout_S, netout_s, netout_V) = svd(netout_s31)
-        for i in xrange(len(netout_s)):
+        # (netout_U, netout_S, netout_s, netout_V) = svd(netout_s31)
+        # for i in xrange(len(netout_s)):
+        #     experiment_strength[i].append(
+        #         netout_s[i]
+        #     )
+
+        WW = np.dot(network.W[1], network.W[0])
+        (WW_U, WW_S, WW_s, WW_V) = svd(WW)
+        for i in xrange(len(WW_s)):
             experiment_strength[i].append(
-                netout_s[i]
+                WW_s[i]
             )
 
         # 現在の誤差
